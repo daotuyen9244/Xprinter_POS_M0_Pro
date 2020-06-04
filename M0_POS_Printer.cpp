@@ -304,7 +304,7 @@ void ESC_POS_Printer::underlineOff() {
 // m = 32 double density vert, single horizontal
 // m = 33 double density vert, double horiz
 void ESC_POS_Printer::printBitmap(
-        int w, int h, const uint8_t *bitmap, int density) {
+        int w, int h,  uint8_t *bitmap, int density) {
     uint8_t band_height;
     uint8_t bitmap_command[] = { 0x1b, '*', 0, 0, 0 };
     size_t w_bytes = w;
@@ -312,7 +312,6 @@ void ESC_POS_Printer::printBitmap(
     switch (density) {
         default:
             density = 1;
-            /* fall through */
         case 1:
             bitmap_command[2] = 0;          // m = single density
             band_height = 8;
@@ -327,7 +326,7 @@ void ESC_POS_Printer::printBitmap(
     bitmap_command[4] = (w >> 8) & 0xFF;// nH = width MS byte
 
     // Line spacing = 16 dots
-    stream->write("\x1b\x33\x10\x1bU\x01");   // Unidirectional print mode on
+	stream->write("\x1b\x33\x10\x1bU\x01");   // Unidirectional print mode on
     for (int row = 0; row < h; row += band_height) {
         stream->write(bitmap_command, sizeof(bitmap_command));
         stream->write(bitmap, w_bytes);
@@ -337,8 +336,30 @@ void ESC_POS_Printer::printBitmap(
     stream->write("\x1b\x32\x1bU");     // Default line spacing
     stream->write((uint8_t)0);          // Unidirectional print mode off
     prevByte = '\n';
+	
+	
 }
-
+void ESC_POS_Printer::printPicture(int w, int h,  uint8_t *bitmap, int density)
+{
+	uint8_t *s, ucTemp[8];
+	int y;
+	ucTemp[0] = 0x1d; ucTemp[1] = 'v';
+	ucTemp[2] = '0'; ucTemp[3] = '0';
+	ucTemp[4] = (w+7)>>3; ucTemp[5] = 0;
+	ucTemp[6] = (uint8_t)h; ucTemp[7] = (uint8_t)(h >> 8);
+	stream->write(ucTemp, sizeof(ucTemp));
+	s = bitmap;
+	for (y=0; y<h; y++)
+  {
+	  stream->write(s, density);
+    s += density;
+  }
+  stream->write('\n');
+  stream->write('\n');
+  stream->write('\n');
+  stream->write('\n');
+  
+}
 void ESC_POS_Printer::printBitmap_P(
         int w, int h, const uint8_t *bitmap, int density) {
     uint8_t band_height;
