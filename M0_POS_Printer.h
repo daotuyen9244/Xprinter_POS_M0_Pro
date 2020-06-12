@@ -115,11 +115,9 @@
 class ESC_POS_Printer : public Print {
 
     public:
-
         // IMPORTANT: constructor syntax has changed from prior versions
         // of this library.  Please see notes in the example code!
         ESC_POS_Printer(Stream *s=&Serial);
-
         size_t
             write(uint8_t c);
         void
@@ -141,6 +139,7 @@ class ESC_POS_Printer : public Print {
             printBarcode(const char *text, uint8_t type),
             printBitmap(int w, int h,  uint8_t *bitmap, int density=1),
 			printPicture(int w, int h,  uint8_t *bitmap, int density=1),
+            printEndfile(),
             printBitmap_P(int w, int h, const uint8_t *bitmap, int density=1),
             printBitmap(int w, int h, const uint8_t *bitmap, bool fromProgMem=true),
             printBitmap(int w, int h, Stream *fromStream),
